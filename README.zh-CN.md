@@ -1,8 +1,12 @@
-# vite-plugin-optimizer [![NPM version](https://img.shields.io/npm/v/vite-plugin-optimizer.svg)](https://npmjs.org/package/vite-plugin-optimizer) [![awesome-vite](https://awesome.re/badge.svg)](https://github.com/vitejs/awesome-vite)
+# vite-plugin-optimizer
 
 手动版的 Vite 预构建
 
-**[English]https://github.com/vite-plugin/vite-plugin-optimizer#readme) | 简体中文**
+[![NPM version](https://img.shields.io/npm/v/vite-plugin-optimizer.svg)](https://npmjs.org/package/vite-plugin-optimizer)
+[![NPM Downloads](https://img.shields.io/npm/dm/vite-plugin-optimizer.svg)](https://npmjs.org/package/vite-plugin-optimizer)
+[![awesome-vite](https://awesome.re/badge.svg)](https://github.com/vitejs/awesome-vite)
+
+[English](https://github.com/vite-plugin/vite-plugin-optimizer#readme) | 简体中文
 
 - 兼容 Browser, Node.js and Electron
 - 自定义 Vite 预构建 [Pre-Bundling](https://vitejs.dev/guide/dep-pre-bundling.html) 内容
