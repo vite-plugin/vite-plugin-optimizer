@@ -11,6 +11,7 @@ module.exports = function optimizer(entries = {}, options = {}) {
   return {
     name: 'vite-plugin-optimizer',
     async config(config) {
+      // https://github.com/vitejs/vite/blob/53799e1cced7957f9877a5b5c9b6351b48e216a7/packages/vite/src/node/config.ts#L440
       if (config.root) root = path.resolve(config.root);
       if (!path.isAbsolute(dir)) dir = path.join(node_modules(root), dir);
       if (!fs.existsSync(dir)) fs.mkdirSync(dir);
