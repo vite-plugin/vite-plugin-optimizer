@@ -20,39 +20,41 @@ npm i vite-plugin-optimizer -D
 ## Usage
 
 ```ts
-import { defineConfig } from 'vite'
 import optimizer from 'vite-plugin-optimizer'
 
-export default defineConfig({
+export default {
   plugins: [
     optimizer({
       vue: `const vue = window.Vue; export { vue as default }`,
     }),
   ]
-})
+}
 ```
 
 #### Load a local file
 
 ```ts
 optimizer({
-  // Support nested module id
-  // Support return Promise
+  // support nested module id
+  // support return Promise
   '@scope/name': () => require('fs/promises').readFile('path', 'utf-8'),
 })
 ```
 
-#### Electron and Node.js
+#### Node.js and Electron
 
 ```ts
 optimizer({
-  // Optimize Electron for use ipcRenderer in Renderer-process
+  // optimize Electron for using `ipcRenderer` in Electron-Renderer
   electron: `const { ipcRenderer } = require('electron'); export { ipcRenderer };`,
 
   // this means that both 'fs' and 'node:fs' are supported
-  // e.g. `import fs from 'fs'` or `import fs from 'node:fs'`
+  // e.g.
+  //   `import fs from 'fs'`
+  //   or
+  //   `import fs from 'node:fs'`
   fs: () => ({
-    // this is actually `alias.find`
+    // this is consistent with the `alias` behavior
     find: /^(node:)?fs$/,
     code: `const fs = require('fs'); export { fs as default }`;
   }),
@@ -61,13 +63,14 @@ optimizer({
 
 ## Advance
 
-#### Optimize an ES module as an CommonJs module for Node.js
+Optimize Node.js ESM packages as CommonJs modules for Node.js/Electron.  
+**e.g.** [execa](https://www.npmjs.com/package/execa), [node-fetch](https://www.npmjs.com/package/node-fetch)
 
-Such as [execa](https://www.npmjs.com/package/execa), [node-fetch](https://www.npmjs.com/package/node-fetch), you can see this 👉 [vite-plugin-esmodule](https://github.com/vite-plugin/vite-plugin-esmodule)
+You can see 👉 [vite-plugin-esmodule](https://github.com/vite-plugin/vite-plugin-esmodule)
 
 ## API
 
-### Optimizer(entries[, options])
+Optimizer(entries[, options])
 
 ##### entries
 
@@ -108,7 +111,7 @@ export interface OptimizerOptions {
 
 ## How to work
 
-#### Let's use Vue as an example
+Let's use Vue as an example
 
 ```js
 optimizer({
@@ -135,6 +138,7 @@ const vue = window.Vue; export { vue as default }
     ],
   },
 }
+
 /**
  * 🚧
  * If you are using a function and have no return value, alias will not be registered.
@@ -143,10 +147,10 @@ const vue = window.Vue; export { vue as default }
  * e.g.
  * 
  * optimizer({
- *   vue(args) {
- *     // You can customize the build "vue" and output it to the specified folder.
- *     // e.g.
- *     build({
+ *   async vue(args) {
+ * 
+ *     // ① You can customize the build `vue` and output it to the specified folder.
+ *     await require('vite').build({
  *       entry: require.resolve('vue'),
  *       outputDir: args.dir + '/vue',
  *     })
@@ -154,6 +158,7 @@ const vue = window.Vue; export { vue as default }
  *     return {
  *       alias: {
  *         find: 'vue',
+ *         // ② Make sure `replacement` points to the `vue` outputDir
  *         replacement: args.dir + '/vue',
  *       }
  *     }
@@ -163,11 +168,11 @@ const vue = window.Vue; export { vue as default }
 ```
 
 3. Add `vue` to the `optimizeDeps.exclude` by default.  
-  You can avoid it by `optimizeDeps.include`
 
 ```js
 export default {
   optimizeDeps: {
+    // 🚧 You can avoid this behavior by `optimizeDeps.include`
     exclude: ['vue'],
   },
 }
