@@ -1,4 +1,4 @@
-import { Alias, Plugin, UserConfig } from 'vite';
+import { Plugin, UserConfig } from 'vite';
 
 declare const optimizer: VitePluginOptimizer;
 export default optimizer;
