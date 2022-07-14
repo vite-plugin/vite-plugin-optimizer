@@ -20,5 +20,9 @@
     "external",
     "optimizer",
     "Pre-Bundling"
+  ],
+  "files": [
+    "index.js",
+    "index.d.ts"
   ]
 }
