@@ -1,4 +1,4 @@
-import { Plugin, UserConfig } from 'vite';
+import { Plugin } from 'vite';
 
 declare const optimizer: VitePluginOptimizer;
 export default optimizer;
@@ -10,20 +10,24 @@ export interface OptimizerArgs {
 
 export interface ResultDescription {
   /**
-   * this option is designed to fully support `alias`  
-   * this is useful if users want to customize alias  
-   * ```js
+   * This is consistent with the `alias` behavior.
+   * 
+   * e.g.  
+   *   `import fs from 'fs'`  
+   *   or  
+   *   `import fs from 'node:fs'`  
+   * 
+   * @example
    * {
-   *   // e.g. 👉 `/^(node:)?fs$/` from user customization  
+   *   // This means that both 'fs' and 'node:fs' are supported.
    *   find: /^(node:)?fs$/,
    *   replacement: '/project/node_modules/.vite-plugin-optimizer/fs.js',
    * }
-   * ```
    */
   alias?: {
     find: string | RegExp;
     /**
-     * If not specified, the path of the generated file is used.
+     * If not explicitly specified, will use the path to the generated file as the default.
      */
     replacement?: string;
   };
@@ -34,8 +38,7 @@ export interface Entries {
   [moduleId: string]:
   | string
   | ResultDescription
-  | ((args: OptimizerArgs) => string | ResultDescription | Promise<string | ResultDescription | void> | void)
-  | void;
+  | ((args: OptimizerArgs) => string | ResultDescription | Promise<string | ResultDescription | void> | void);
 }
 
 export interface OptimizerOptions {
@@ -43,10 +46,7 @@ export interface OptimizerOptions {
    * @default ".vite-plugin-optimizer"
    */
   dir?: string;
-  /**
-   * @default ".js"
-   */
-  ext?: string;
+  resolveId?: ((id: string) => string | Promise<string | void> | void);
 }
 
 export interface VitePluginOptimizer {
@@ -58,20 +58,9 @@ export interface VitePluginOptimizer {
 export type GenerateRecord = {
   alias?: ResultDescription['alias'];
   module: string;
-  // absolute path of file
-  filepath: string;
+  // Absolute path of file
+  filename: string;
 };
 export interface GenerateModule {
-  (dir: string, entries: Entries, ext: string): Promise<GenerateRecord[]>;
-}
-
-export interface RegisterAlias {
-  (
-    config: UserConfig,
-    records: GenerateRecord[],
-  ): void;
-}
-
-export interface RegisterOptimizeDepsExclude {
-  (config: UserConfig, exclude: string[]): void;
+  (...args: Parameters<VitePluginOptimizer>): Promise<GenerateRecord[]>;
 }
