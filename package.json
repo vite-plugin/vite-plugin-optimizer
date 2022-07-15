@@ -9,7 +9,9 @@
   },
   "author": "草鞋没号 <308487730@qq.com>",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "test": "vite -c test/vite.config.ts"
+  },
   "devDependencies": {
     "vite": "^2.9.9"
   },
