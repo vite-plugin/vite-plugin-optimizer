@@ -72,29 +72,49 @@ You can see 👉 [vite-plugin-esmodule](https://github.com/vite-plugin/vite-plug
 
 Optimizer(entries[, options])
 
-##### entries
+`entries: Entries`
 
 ```ts
-export interface Entries {
-  [moduleId: string]:
-    | string
-    | ResultDescription
-    | ((args: OptimizerArgs) => string | ResultDescription | Promise<string | ResultDescription | void> | void)
-    | void;
-}
-
 export interface OptimizerArgs {
   /** Generated file cache directory */
   dir: string;
 }
 
 export interface ResultDescription {
-  alias?: { find: string | RegExp; replacement: string };
+  /**
+   * This is consistent with the `alias` behavior.
+   * 
+   * e.g.  
+   *   `import fs from 'fs'`  
+   *   or  
+   *   `import fs from 'node:fs'`  
+   * 
+   * @example
+   * {
+   *   // This means that both 'fs' and 'node:fs' are supported.
+   *   find: /^(node:)?fs$/,
+   *   replacement: '/project/node_modules/.vite-plugin-optimizer/fs.js',
+   * }
+   */
+  alias?: {
+    find: string | RegExp;
+    /**
+     * If not explicitly specified, will use the path to the generated file as the default.
+     */
+    replacement?: string;
+  };
   code?: string;
+}
+
+export interface Entries {
+  [moduleId: string]:
+  | string
+  | ResultDescription
+  | ((args: OptimizerArgs) => string | ResultDescription | Promise<string | ResultDescription | void> | void);
 }
 ```
 
-##### options
+`options: OptimizerOptions`
 
 ```ts
 export interface OptimizerOptions {
@@ -102,10 +122,7 @@ export interface OptimizerOptions {
    * @default ".vite-plugin-optimizer"
    */
   dir?: string;
-  /**
-   * @default ".js"
-   */
-  ext?: string;
+  resolveId?: ((id: string) => string | Promise<string | void> | void);
 }
 ```
 

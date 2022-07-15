@@ -1,55 +1,73 @@
 const fs = require('fs');
 const path = require('path');
 
+const DIR = '.vite-plugin-optimizer';
+const EXT = '.js';
+
 /**
  * @type {import('.').VitePluginOptimizer}
  */
-module.exports = function optimizer(entries = {}, options = {}) {
-  let { dir = '.vite-plugin-optimizer', ext = '.js' } = options;
+module.exports = function optimizer(entries, options = {}) {
+  if (typeof options.dir === 'undefined') options.dir = DIR;
   let root = process.cwd();
 
   return {
     name: 'vite-plugin-optimizer',
     async config(config) {
-      // https://github.com/vitejs/vite/blob/53799e1cced7957f9877a5b5c9b6351b48e216a7/packages/vite/src/node/config.ts#L440
+      // https://github.com/vitejs/vite/blob/a2b313126abdf2e0652502cbcd4b94353c37f91a/packages/vite/src/node/config.ts#L442-L445
       if (config.root) root = path.resolve(config.root);
-      if (!path.isAbsolute(dir)) dir = path.join(node_modules(root), dir);
-      if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+      if (!path.isAbsolute(options.dir)) options.dir = path.join(node_modules(root), options.dir);
+      if (!fs.existsSync(options.dir)) fs.mkdirSync(options.dir, { recursive: true });
 
-      // if the module is already in `optimizeDeps.include`, it should be filtered out
-      const includeDeps = (config.optimizeDeps || {}).include || [];
-      if (includeDeps.length) {
-        const keys = Object.keys(entries).filter(key => !includeDeps.includes(key));
-        entries = filterEntriesByKeys(entries, keys);
+      if (!config.optimizeDeps) config.optimizeDeps = {};
+      if (!config.optimizeDeps.include) config.optimizeDeps.include = [];
+      if (!config.optimizeDeps.exclude) config.optimizeDeps.exclude = [];
+
+      if (!config.resolve) config.resolve = {};
+      if (!config.resolve.alias) config.resolve.alias = [];
+      if (typeof config.resolve.alias === 'object') {
+        config.resolve.alias = Object
+          .entries(config.resolve.alias)
+          .reduce((memo, [find, replacement]) => memo.concat({ find, replacement }), []);
       }
 
-      // insert optimize module to `optimizeDeps.exclude`
-      // you can avoid it by `optimizeDeps.include`
-      registerOptimizeDepsExclude(config, Object.keys(entries));
+      // If the module is already in `optimizeDeps.include`, it should be filtered out
+      const include = config.optimizeDeps.include;
+      if (include.length) {
+        const keys = Object.keys(entries).filter(key => !include.includes(key));
+        entries = Object
+          .entries(entries)
+          .filter(([key]) => keys.includes(key))
+          .reduce((memo, [key, val]) => Object.assign(memo, { [key]: val }), {});
+      }
 
       // Pre-building modules
-      const generateRecords = await generateModule(dir, entries, ext);
+      const generateRecords = await generateModule(entries, options);
 
-      // avoid vite builtin 'vite:resolve' plugin by alias
-      registerAlias(config, generateRecords);
+      for (const record of generateRecords) {
+
+        // Insert optimize module to `optimizeDeps.exclude`
+        // You can avoid it by `optimizeDeps.include`
+        config.optimizeDeps.exclude.push(record.module);
+
+        // avoid vite builtin 'vite:resolve' plugin by alias
+        config.resolve.alias.push({
+          find: record.module,
+          replacement: record.filename,
+          ...record.alias,
+        });
+
+      }
     },
   }
 }
 
 /**
- * @type {(entries: import('.').Entries, keys: string[]) => import('.').Entries}
- */
-function filterEntriesByKeys(entries, keys) {
-  return Object
-    .entries(entries)
-    .filter(([key]) => keys.includes(key))
-    .reduce((memo, [key, val]) => Object.assign(memo, { [key]: val }), {});
-}
-
-/**
  * @type {import('.').GenerateModule}
  */
-async function generateModule(dir, entries, ext) {
+async function generateModule(entries, options) {
+  const dir = options.dir; // Here, must be absolute path.
+
   /**
    * @type {import('.').GenerateRecord[]}
    */
@@ -57,14 +75,19 @@ async function generateModule(dir, entries, ext) {
   for (const [module, variableType] of Object.entries(entries)) {
     if (!variableType) continue;
 
-    // `/project/node_modules/.vite-plugin-optimizer/${module}`
-    const filepath = path.join(dir, module);
-    const filename = filepath + ext;
+    // `/project/node_modules/.vite-plugin-optimizer/${module}.js`
+    let filename = path.join(dir, module) + EXT;
+
+    if (options.resolveId) {
+      const tmp = options.resolveId(filename);
+      if (tmp) filename = tmp;
+    }
+
     let moduleContent = null;
     /**
      * @type {import('.').GenerateRecord}
      */
-    let record = { module, filepath };
+    let record = { module, filename };
 
     if (typeof variableType === 'function') {
       const tmp = await variableType({ dir });
@@ -83,8 +106,8 @@ async function generateModule(dir, entries, ext) {
     }
 
     if (moduleContent) {
-      // supported nest moduleId '@scope/name'
-      module.includes('/') && ensureDir(path.join(filepath, '..'));
+      // Support nest moduleId '@scope/name'
+      ensureDir(path.join(filename, '..'));
       fs.writeFileSync(filename, moduleContent);
     }
 
@@ -93,39 +116,6 @@ async function generateModule(dir, entries, ext) {
     }
   }
   return generateRecords;
-}
-
-/**
- * @type {import('.').RegisterAlias}
- */
-function registerAlias(config, records) {
-  if (!config.resolve) config.resolve = {};
-  if (!config.resolve.alias) config.resolve.alias = [];
-
-  if (!Array.isArray(config.resolve.alias)) {
-    // convert to Array
-    config.resolve.alias = Object.entries(config.resolve.alias).map(
-      ([find, replacement]) => ({ find, replacement }),
-    );
-  }
-
-  for (const record of records) {
-    config.resolve.alias.push({
-      find: record.module,
-      replacement: record.filepath,
-      ...record.alias,
-    });
-  }
-}
-
-/**
- * @type {import('.').RegisterOptimizeDepsExclude}
- */
-function registerOptimizeDepsExclude(config, exclude) {
-  if (!config.optimizeDeps) config.optimizeDeps = {};
-  if (!config.optimizeDeps.exclude) config.optimizeDeps.exclude = [];
-
-  config.optimizeDeps.exclude.push(...exclude);
 }
 
 // --------- utils ---------

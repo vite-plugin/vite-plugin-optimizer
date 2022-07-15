@@ -72,29 +72,49 @@ optimizer({
 
 Optimizer(entries[, options])
 
-##### entries
+`entries: Entries`
 
 ```ts
-export interface Entries {
-  [moduleId: string]:
-    | string
-    | ResultDescription
-    | ((args: OptimizerArgs) => string | ResultDescription | Promise<string | ResultDescription | void> | void)
-    | void;
-}
-
 export interface OptimizerArgs {
-  /** 生成缓存文件夹 */
+  /** 生成缓存文件路径 */
   dir: string;
 }
 
 export interface ResultDescription {
-  alias?: { find: string | RegExp; replacement: string };
-  code: string;
+  /**
+   * 这与 `alias` 行为一致。
+   * 
+   * e.g.  
+   *   `import fs from 'fs'`  
+   *   or  
+   *   `import fs from 'node:fs'`  
+   * 
+   * @example
+   * {
+   *   // 这种写法表示同时支持 'fs' 和 'node:fs'。  
+   *   find: /^(node:)?fs$/,
+   *   replacement: '/project/node_modules/.vite-plugin-optimizer/fs.js',
+   * }
+   */
+  alias?: {
+    find: string | RegExp;
+    /**
+     * 如果没有显式的指定，将会使用生成文件的路径作为默认值。
+     */
+    replacement?: string;
+  };
+  code?: string;
+}
+
+export interface Entries {
+  [moduleId: string]:
+  | string
+  | ResultDescription
+  | ((args: OptimizerArgs) => string | ResultDescription | Promise<string | ResultDescription | void> | void);
 }
 ```
 
-##### options
+`options: OptimizerOptions`
 
 ```ts
 export interface OptimizerOptions {
@@ -102,10 +122,7 @@ export interface OptimizerOptions {
    * @default ".vite-plugin-optimizer"
    */
   dir?: string;
-  /**
-   * @default ".js"
-   */
-  ext?: string;
+  resolveId?: ((id: string) => string | Promise<string | void> | void);
 }
 ```
 
