@@ -1,3 +1,8 @@
+## [2022-10-15] v1.4.1
+
+- bafe527 v1.4.1
+- 1fd4a6d (github/v1.4.1) feat(🌱): support `type: "module"`
+- 6600d5c fix(🐞): type check  #3
 
 ## [2022-07-15] v1.4.0
 

@@ -25,7 +25,7 @@ module.exports = function optimizer(entries, options = {}) {
 
       if (!config.resolve) config.resolve = {};
       if (!config.resolve.alias) config.resolve.alias = [];
-      if (typeof config.resolve.alias === 'object') {
+      if (Object.prototype.toString.call(config.resolve.alias) === '[object Object]') {
         config.resolve.alias = Object
           .entries(config.resolve.alias)
           .reduce((memo, [find, replacement]) => memo.concat({ find, replacement }), []);
