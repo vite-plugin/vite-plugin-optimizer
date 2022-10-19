@@ -68,11 +68,13 @@ Optimize Node.js ESM packages as CommonJs modules for Node.js/Electron.
 
 You can see 👉 [vite-plugin-esmodule](https://github.com/vite-plugin/vite-plugin-esmodule)
 
-## API
+## API <sub><sup>(Define)</sup></sub>
 
-Optimizer(entries[, options])
+`optimizer(entries[, options])`
 
-`entries: Entries`
+```ts
+function optimizer(entries: Entries, options?: OptimizerOptions): import('vite').Plugin;
+```
 
 ```ts
 export interface OptimizerArgs {
@@ -112,11 +114,7 @@ export interface Entries {
   | ResultDescription
   | ((args: OptimizerArgs) => string | ResultDescription | Promise<string | ResultDescription | void> | void);
 }
-```
 
-`options: OptimizerOptions`
-
-```ts
 export interface OptimizerOptions {
   /**
    * @default ".vite-plugin-optimizer"
