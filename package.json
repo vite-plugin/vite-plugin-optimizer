@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-optimizer",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Manually Pre-Bundling of Vite",
   "main": "index.js",
   "exports": {
@@ -17,7 +17,7 @@
   "license": "MIT",
   "scripts": {
     "build": "node build.js",
-    "test": "vite -c test/vite.config.ts",
+    "test": "node test/index.mjs",
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
