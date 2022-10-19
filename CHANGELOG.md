@@ -1,5 +1,14 @@
 ## [2022-10-15] v1.4.1
 
+- bc1935f v1.4.2
+- babc0e1 chroe: comments
+- f1bb571 refactor: complete test 🚀
+- 051210e docs: v1.4.2
+- a5a16c0 feat: compatible type define
+- 1593e45 refactor: build with lib-esm@0.3.0
+
+## [2022-10-15] v1.4.1
+
 - bafe527 v1.4.1
 - 1fd4a6d (github/v1.4.1) feat(🌱): support `type: "module"`
 - 6600d5c fix(🐞): type check  #3

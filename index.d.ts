@@ -1,7 +1,8 @@
-import { Plugin } from 'vite';
-
-declare const optimizer: VitePluginOptimizer;
-export default optimizer;
+declare module 'vite-plugin-optimizer' {
+  function optimizer(entries: Entries, options?: OptimizerOptions): import('vite').Plugin;
+  // https://www.typescriptlang.org/docs/handbook/declaration-files/templates/module-d-ts.html#default-exports
+  export = optimizer;
+}
 
 export interface OptimizerArgs {
   /** Generated file cache directory */
@@ -49,10 +50,6 @@ export interface OptimizerOptions {
   resolveId?: ((id: string) => string | Promise<string | void> | void);
 }
 
-export interface VitePluginOptimizer {
-  (entries: Entries, options?: OptimizerOptions): Plugin;
-}
-
 // --------- utils ---------
 
 export type GenerateRecord = {
@@ -61,6 +58,7 @@ export type GenerateRecord = {
   // Absolute path of file
   filename: string;
 };
+
 export interface GenerateModule {
-  (...args: Parameters<VitePluginOptimizer>): Promise<GenerateRecord[]>;
+  (entries: Entries, options?: OptimizerOptions): Promise<GenerateRecord[]>;
 }

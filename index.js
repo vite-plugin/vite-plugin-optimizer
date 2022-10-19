@@ -5,7 +5,7 @@ const DIR = '.vite-plugin-optimizer';
 const EXT = '.js';
 
 /**
- * @type {import('.').VitePluginOptimizer}
+ * @type {import('vite-plugin-optimizer')}
  */
 module.exports = function optimizer(entries, options = {}) {
   if (typeof options.dir === 'undefined') options.dir = DIR;
