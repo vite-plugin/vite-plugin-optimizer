@@ -56,7 +56,7 @@ optimizer({
   fs: () => ({
     // this is consistent with the `alias` behavior
     find: /^(node:)?fs$/,
-    code: `const fs = require('fs'); export { fs as default }`;
+    code: `const fs = require('fs'); export { fs as default };`
   }),
 })
 ```
