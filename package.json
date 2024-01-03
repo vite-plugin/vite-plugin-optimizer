@@ -3,6 +3,7 @@
   "version": "1.4.2",
   "description": "Manually Pre-Bundling of Vite",
   "main": "index.js",
+  "types": "index.d.ts",
   "exports": {
     ".": {
       "import": "./index.mjs",
