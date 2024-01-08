@@ -1,4 +1,12 @@
-## [2022-10-15] v1.4.1
+## [2024-01-08] v1.4.3
+
+- bec3951 fix: update types
+- 372e72a Merge pull request #8 from CharleeWa/main
+- 7d008ef chore: Specify TypeScript declaration file
+- ef68f59 Merge pull request #6 from learnsomesome/patch-1
+- 4294887 Update README.md
+
+## [2022-10-15] v1.4.2
 
 - bc1935f v1.4.2
 - babc0e1 chroe: comments
