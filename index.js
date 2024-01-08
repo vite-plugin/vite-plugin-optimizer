@@ -5,7 +5,7 @@ const DIR = '.vite-plugin-optimizer';
 const EXT = '.js';
 
 /**
- * @type {import('vite-plugin-optimizer')}
+ * @type {import('vite-plugin-optimizer')['default']}
  */
 module.exports = function optimizer(entries, options = {}) {
   if (typeof options.dir === 'undefined') options.dir = DIR;
@@ -63,13 +63,13 @@ module.exports = function optimizer(entries, options = {}) {
 }
 
 /**
- * @type {import('.').GenerateModule}
+ * @type {import('vite-plugin-optimizer').GenerateModule}
  */
 async function generateModule(entries, options) {
   const dir = options.dir; // Here, must be absolute path.
 
   /**
-   * @type {import('.').GenerateRecord[]}
+   * @type {import('vite-plugin-optimizer').GenerateRecord[]}
    */
   const generateRecords = [];
   for (const [module, variableType] of Object.entries(entries)) {
@@ -85,7 +85,7 @@ async function generateModule(entries, options) {
 
     let moduleContent = null;
     /**
-     * @type {import('.').GenerateRecord}
+     * @type {import('vite-plugin-optimizer').GenerateRecord}
      */
     let record = { module, filename };
 
